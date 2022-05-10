@@ -16,10 +16,8 @@ public class MatrixAddForkJoin {
         forkJoinPool.invoke(new MatrixSuma(A, B, T));
     }
 
-    public void getResultados() {
-        for (double[] answ1 : answ) {
-            System.out.println(Arrays.toString(answ1));
-        }
+    public double [][] getResultados() {
+        return this.answ;
     }
 
     private class MatrixSuma extends RecursiveAction {

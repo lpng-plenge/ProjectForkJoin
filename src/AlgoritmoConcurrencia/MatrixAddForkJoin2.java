@@ -1,17 +1,16 @@
 package AlgoritmoConcurrencia;
 
-import java.util.Arrays;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
-public class MatrixMultiForkJoin {
+public class MatrixAddForkJoin2 {
 
     static double[][] answ;
 
-    public void matrixMulti(double[][] A, double[][] B) {
+    public void matrixAdd(double[][] A, double[][] B) {
         double[][] helper = new double[A.length][B[0].length];
         ForkJoinPool forkJoinPool = new ForkJoinPool();
-        forkJoinPool.invoke(new MultiRow(A, B, A.length, A[0].length, B.length, B[0].length, 0, B[0].length - 1, helper));
+        forkJoinPool.invoke(new AddRow(A, B, A.length, A[0].length, B.length, B[0].length, 0, B[0].length - 1, helper));
         setResultados(helper);
     }
 
@@ -24,7 +23,7 @@ public class MatrixMultiForkJoin {
         return this.answ;
     }
 
-    public class MultiRow extends RecursiveAction {
+    public class AddRow extends RecursiveAction {
 
         public double[][] A, B, help;
         private final int i1, i2;
@@ -32,7 +31,7 @@ public class MatrixMultiForkJoin {
         private final int left;
         private final int right;
 
-        MultiRow(double[][] A, double[][] B, int i1, int j1, int i2, int j2, int left, int right, double[][] help) {
+        AddRow(double[][] A, double[][] B, int i1, int j1, int i2, int j2, int left, int right, double[][] help) {
             this.A = A;
             this.B = B;
             this.help = help;
@@ -47,17 +46,17 @@ public class MatrixMultiForkJoin {
         @Override
         protected void compute() {
             if (left == right) {
-                MultiCols op = new MultiCols(A, B, i1, j1, i2, j2, 0, j2 - 1, left, help);
+                AddCols op = new AddCols(A, B, i1, j1, i2, j2, 0, j2 - 1, left, help);
                 invokeAll(op);
             } else {
                 int mid = (int) (this.left + this.right) / 2;
-                MultiRow arriba = new MultiRow(A, B, i1, j1, i2, j2, left, mid, help);
-                MultiRow abajo = new MultiRow(A, B, i1, j1, i2, j2, mid + 1, right, help);
+                AddRow arriba = new AddRow(A, B, i1, j1, i2, j2, left, mid, help);
+                AddRow abajo = new AddRow(A, B, i1, j1, i2, j2, mid + 1, right, help);
                 invokeAll(arriba, abajo);
             }
         }
 
-        class MultiCols extends RecursiveAction {
+        class AddCols extends RecursiveAction {
 
             private final double[][] A, B, help;
             private final int i1, i2;
@@ -65,7 +64,7 @@ public class MatrixMultiForkJoin {
             private final int left, right;
             private final int current;
 
-            MultiCols(double[][] A, double[][] B, int i1, int j1, int i2, int j2, int left, int right, int current, double[][] help) {
+            AddCols(double[][] A, double[][] B, int i1, int j1, int i2, int j2, int left, int right, int current, double[][] help) {
                 this.A = A;
                 this.B = B;
                 this.help = help;
@@ -81,18 +80,15 @@ public class MatrixMultiForkJoin {
             @Override
             protected void compute() {
                 if (left == right) {
-                    for (int i = 0; i < this.j2; i++) {
-                        help[current][left] += A[current][i] * B[i][left];
-                    }
+                    help[left][current] = A[current][current] + B[current][current];
                 } else {
                     int mid = (this.left + this.right) / 2;
-                    MultiCols leftMatrix = new MultiCols(A, B, i1, j1, i2, j2, left, mid, current, help);
-                    MultiCols rightMatrix = new MultiCols(A, B, i1, j1, i2, j2, mid + 1, right, current, help);
+                    AddCols leftMatrix = new AddCols(A, B, i1, j1, i2, j2, left, mid, current, help);
+                    AddCols rightMatrix = new AddCols(A, B, i1, j1, i2, j2, mid + 1, right, current, help);
                     invokeAll(leftMatrix, rightMatrix);
                 }
             }
         }
 
     }
-
 }

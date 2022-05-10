@@ -27,15 +27,4 @@ public class CreateMatrix {
         return this.B;
     }
 
-    public void printMatrixA() {
-        for (double[] A1 : A) {
-            System.out.println(Arrays.toString(A1));
-        }
-    }
-
-    public void printMatrixB() {
-        for (double[] B1 : B) {
-            System.err.println(Arrays.toString(B1));
-        }
-    }
 }
